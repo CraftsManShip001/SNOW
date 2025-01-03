@@ -1,0 +1,18 @@
+# 파이썬 관련 파일
+__pycache__/
+*.py[cod]
+
+# 가상환경 폴더
+venv/
+env/
+.env/
+
+# .env 파일 (환경 변수 파일)
+.env
+
+# MySQL 인증 정보와 같은 비밀번호가 포함된 파일
+config.py
+
+# OS 관련 임시 파일
+.DS_Store
+Thumbs.db
