@@ -4,9 +4,6 @@ import xmltodict
 import tensorflow as tf
 import numpy as np
 import os
-from dotenv import load_dotenv
-load_dotenv()
-
 KEY = os.getenv("KEY")
 
 print(KEY)
