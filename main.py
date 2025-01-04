@@ -4,6 +4,9 @@ import xmltodict
 import tensorflow as tf
 import numpy as np
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 KEY = os.getenv("KEY")
 
 print(KEY)
@@ -66,10 +69,10 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # 허용할 출처 목록
+    allow_origins=["*"],  # 또는 요청할 도메인
     allow_credentials=True,
-    allow_methods=["GET"],  # 허용할 HTTP 메서드
-    allow_headers=["*"],  # 허용할 헤더
+    allow_methods=["*"],  # 모든 메서드 허용
+    allow_headers=["*"],
 )
 
 @app.get('/snow')
