@@ -4,8 +4,12 @@ import xmltodict
 import tensorflow as tf
 import numpy as np
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 KEY = os.getenv("KEY")
+
+print(KEY)
 
 def get_current_date():
     current_date = datetime.now().date()
@@ -16,19 +20,26 @@ def get_current_hour():
     return datetime.now().strftime("%H%M")
 
 def forecast(params):
-    url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
-    res = requests.get(url, params)
+    try:
+        url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
+        res = requests.get(url, params)
+        xml_data = res.text
+        dict_data = xmltodict.parse(xml_data)
 
-    xml_data = res.text
-    dict_data = xmltodict.parse(xml_data)
+        print(dict_data)  # 응답 데이터 확인용 출력
 
-    for item in dict_data['response']['body']['items']['item']:
-        if item['category'] == 'T1H':
-            temp = item['obsrValue']
-        if item['category'] == 'RN1':
-            sky = item['obsrValue']
-    
-    return temp, sky
+        temp, sky = None, None
+        for item in dict_data['response']['body']['items']['item']:
+            if item['category'] == 'T1H':
+                temp = item['obsrValue']
+            if item['category'] == 'RN1':
+                sky = item['obsrValue']
+        return float(temp), float(sky)
+    except Exception as e:
+        print(f"Error fetching forecast data: {e}")
+        return 0.0, 0.0
+
+
 
 params ={'serviceKey' : KEY, 
          'pageNo' : '1', 
@@ -42,7 +53,7 @@ today_temp,today_rain = forecast(params)
 today_temp = float(today_temp)
 today_rain = float(today_rain)
 
-snow = tf.keras.models.load_model('snowmodel.keras')
+snow = tf.keras.models.load_model('./snowmodel.keras')
 result = snow.predict(np.array([[today_temp,today_rain]]))
 result = float(result[0][0])
 
@@ -68,4 +79,4 @@ app.add_middleware(
 def getSnowpercent():
     return {'temp':today_temp, 'rain':today_rain, 'snow':result}
 
-#print('오늘의 날씨는 %.1f도이고 강수량은 %.1fmm 마지막으로 눈이 올 확률은 대충 %.3f%%입니다' %(today_temp,today_rain,result))
+print('오늘의 날씨는 %.1f도이고 강수량은 %.1fmm 마지막으로 눈이 올 확률은 대충 %.3f%%입니다' %(today_temp,today_rain,result))
