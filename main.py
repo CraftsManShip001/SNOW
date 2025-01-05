@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
 from datetime import timedelta
+import pytz
 import xmltodict
 import tensorflow as tf
 import numpy as np
@@ -11,11 +12,14 @@ load_dotenv()
 KEY = os.getenv("KEY")
 
 def get_current_date():
+    tz = pytz.timezone('Asia/Seoul')
+    current_date = datetime.now(tz).date()
     current_date = datetime.now().date()
     return current_date.strftime("%Y%m%d")
 
 def get_current_hour():
-    now = datetime.now()
+    tz = pytz.timezone('Asia/Seoul')
+    now = datetime.now(tz)
     if now.minute < 30:
         base_time = (now - timedelta(hours=1)).strftime("%H") + "30"
     else:
@@ -41,13 +45,6 @@ def forecast(params):
     except Exception as e:
         print(f"Error fetching forecast data: {e}")
         return 0.0, 0.0
-
-
-
-
-
-
-
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
