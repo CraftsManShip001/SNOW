@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+from datetime import timedelta
 import xmltodict
 import tensorflow as tf
 import numpy as np
@@ -15,7 +16,11 @@ def get_current_date():
 
 def get_current_hour():
     now = datetime.now()
-    return datetime.now().strftime("%H%M")
+    if now.minute < 30:
+        base_time = (now - timedelta(hours=1)).strftime("%H") + "30"
+    else:
+        base_time = now.strftime("%H") + "30"
+    return base_time
 
 def forecast(params):
     try:
