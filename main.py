@@ -9,8 +9,6 @@ load_dotenv()
 
 KEY = os.getenv("KEY")
 
-print(KEY)
-
 def get_current_date():
     current_date = datetime.now().date()
     return current_date.strftime("%Y%m%d")
@@ -49,13 +47,9 @@ params ={'serviceKey' : KEY,
          'base_time' : get_current_hour(), 
          'nx' : '55', 
          'ny' : '127' }
-today_temp,today_rain = forecast(params)
-today_temp = float(today_temp)
-today_rain = float(today_rain)
 
-snow = tf.keras.models.load_model('./snowmodel.keras')
-result = snow.predict(np.array([[today_temp,today_rain]]))
-result = float(result[0][0])
+
+
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,6 +72,10 @@ app.add_middleware(
 
 @app.get('/snow')
 def getSnowpercent():
+    today_temp,today_rain = forecast(params)
+    today_temp = float(today_temp)
+    today_rain = float(today_rain)
+    snow = tf.keras.models.load_model('/Users/sjh/Desktop/JustProject/SNOW/snowpredict/snowmodel.keras')
+    result = snow.predict(np.array([[today_temp,today_rain]]))
+    result = float(result[0][0])
     return {'temp':today_temp, 'rain':today_rain, 'snow':result}
-
-print('오늘의 날씨는 %.1f도이고 강수량은 %.1fmm 마지막으로 눈이 올 확률은 대충 %.3f%%입니다' %(today_temp,today_rain,result))
