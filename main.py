@@ -39,14 +39,7 @@ def forecast(params):
 
 
 
-params ={'serviceKey' : KEY, 
-         'pageNo' : '1', 
-         'numOfRows' : '10', 
-         'dataType' : 'XML', 
-         'base_date' : get_current_date(), 
-         'base_time' : get_current_hour(), 
-         'nx' : '55', 
-         'ny' : '127' }
+
 
 
 
@@ -72,10 +65,18 @@ app.add_middleware(
 
 @app.get('/snow')
 def getSnowpercent():
+    params ={'serviceKey' : KEY, 
+         'pageNo' : '1', 
+         'numOfRows' : '10', 
+         'dataType' : 'XML', 
+         'base_date' : get_current_date(), 
+         'base_time' : get_current_hour(), 
+         'nx' : '55', 
+         'ny' : '127' }
     today_temp,today_rain = forecast(params)
     today_temp = float(today_temp)
     today_rain = float(today_rain)
-    snow = tf.keras.models.load_model('./snowmodel.keras')
+    snow = tf.keras.models.load_model('./snowpredict/snowmodel.keras')
     result = snow.predict(np.array([[today_temp,today_rain]]))
     result = float(result[0][0])
     return {'temp':today_temp, 'rain':today_rain, 'snow':result}
