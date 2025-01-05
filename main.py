@@ -75,6 +75,7 @@ def getSnowpercent():
          'base_time' : get_current_hour(), 
          'nx' : '55', 
          'ny' : '127' }
+    print(get_current_date(),get_current_hour())
     today_temp,today_rain = forecast(params)
     today_temp = float(today_temp)
     today_rain = float(today_rain)
