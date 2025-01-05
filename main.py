@@ -14,7 +14,6 @@ KEY = os.getenv("KEY")
 def get_current_date():
     tz = pytz.timezone('Asia/Seoul')
     current_date = datetime.now(tz).date()
-    current_date = datetime.now().date()
     return current_date.strftime("%Y%m%d")
 
 def get_current_hour():
