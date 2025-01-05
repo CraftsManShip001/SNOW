@@ -76,7 +76,7 @@ def getSnowpercent():
     today_temp,today_rain = forecast(params)
     today_temp = float(today_temp)
     today_rain = float(today_rain)
-    snow = tf.keras.models.load_model('./snowpredict/snowmodel.keras')
+    snow = tf.keras.models.load_model('./snowmodel.keras')
     result = snow.predict(np.array([[today_temp,today_rain]]))
     result = float(result[0][0])
     return {'temp':today_temp, 'rain':today_rain, 'snow':result}
