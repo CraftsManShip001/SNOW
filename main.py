@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
 from datetime import timedelta
+from pydantic import BaseModel,Field
 import pytz
 import xmltodict
 import tensorflow as tf
@@ -10,6 +11,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 KEY = os.getenv("KEY")
+
+city_nx = {'Busan': 55, 'Seoul': 60, 'Daegu': 89, 'Incheon': 54, 'Daejeon': 67, 'Gwangju': 58, 'Ulsan': 102}
+city_ny = {'Busan': 127, 'Seoul': 127, 'Daegu': 90, 'Incheon': 124, 'Daejeon': 100, 'Gwangju': 74, 'Ulsan': 84}
+
+models = {
+    'Busan': 'snowbusanmodel',
+    'Seoul': 'snowseoulmodel',
+    'Daegu': 'snowdaegumodel',
+    'Incheon': 'snowincheonmodel',
+    'Daejeon': 'snowdaejeonmodel',
+    'Gwangju': 'snowgwangjumodel',
+    'Ulsan': 'snowulsanmodel'
+}
+
+
+class City(BaseModel):
+    city : str
 
 def get_current_date():
     tz = pytz.timezone('Asia/Seoul')
@@ -61,20 +79,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get('/snow')
-def getSnowpercent():
+@app.post('/snow')
+def getSnowPercent(request : City):
+    city = request.city
+    nx = str(city_nx[city])
+    ny = str(city_ny[city])
     params ={'serviceKey' : KEY, 
          'pageNo' : '1', 
          'numOfRows' : '10', 
          'dataType' : 'XML', 
          'base_date' : get_current_date(), 
          'base_time' : get_current_hour(), 
-         'nx' : '55', 
-         'ny' : '127' }
+         'nx' : nx, 
+         'ny' : ny }
     today_temp,today_rain = forecast(params)
     today_temp = float(today_temp)
     today_rain = float(today_rain)
-    snow = tf.keras.models.load_model('./snowmodel.keras')
+    snow = tf.keras.models.load_model('./' + models[city] + '.keras')
     result = snow.predict(np.array([[today_temp,today_rain]]))
     result = float(result[0][0])
+    if result <= 0.0001:
+        result = float(0)
     return {'temp':today_temp, 'rain':today_rain, 'snow':result}
